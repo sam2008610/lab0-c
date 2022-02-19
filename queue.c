@@ -58,12 +58,12 @@ bool q_insert_head(struct list_head *head, char *s)
 
     /* Allocate memory to string */
     e->value = strdup(s);
-    if (!e->value) {
+    if (!(e->value)) {
         free(e);
         return false;
     }
     /* Insert node */
-    list_add(&(e->list), head);
+    list_add(&e->list, head);
     return true;
 }
 
@@ -85,12 +85,12 @@ bool q_insert_tail(struct list_head *head, char *s)
 
     /* Allocate memory to string */
     e->value = strdup(s);
-    if (!e->value) {
+    if (!(e->value)) {
         free(e);
         return false;
     }
     /* Insert node */
-    list_add_tail(&(e->list), head);
+    list_add_tail(&e->list, head);
     return true;
 }
 
