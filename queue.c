@@ -33,9 +33,9 @@ void q_free(struct list_head *l)
         return;
     struct list_head *q = l->next;
     while (q != l) {
-        element_t *temp = container_of(q, element_t, list);
+        element_t *tmp = container_of(q, element_t, list);
         q = q->next;
-        q_release_element(temp);
+        q_release_element(tmp);
     }
     free(l);
 }
@@ -110,7 +110,15 @@ bool q_insert_tail(struct list_head *head, char *s)
  */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head || head->next == head)
+        return NULL;
+    element_t *target = container_of(head->next, element_t, list);
+    if (sp) {
+        strncpy(sp, target->value, bufsize - 1);
+        sp[bufsize - 1] = '\0';
+    }
+    list_del(head->next);
+    return target;
 }
 
 /*
@@ -119,7 +127,15 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
  */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head || head->next == head)
+        return NULL;
+    element_t *target = container_of(head->prev, element_t, list);
+    if (sp) {
+        strncpy(sp, target->value, bufsize - 1);
+        sp[bufsize - 1] = '\0';
+    }
+    list_del(head->prev);
+    return target;
 }
 
 /*
@@ -193,7 +209,19 @@ void q_swap(struct list_head *head)
  * (e.g., by calling q_insert_head, q_insert_tail, or q_remove_head).
  * It should rearrange the existing ones.
  */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    if (!head)
+        return;
+    struct list_head *ptr = head;
+    do {
+        struct list_head *tmp;
+        tmp = ptr->next;
+        ptr->next = ptr->prev;
+        ptr->prev = tmp;
+        ptr = ptr->prev;
+    } while (ptr != head);
+}
 
 /*
  * Sort elements of queue in ascending order
