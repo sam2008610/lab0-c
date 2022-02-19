@@ -17,11 +17,28 @@
  */
 struct list_head *q_new()
 {
-    return NULL;
+    /* Allocate memory space. */
+    struct list_head *q = malloc(sizeof(struct list_head));
+    if (!q)
+        return NULL;
+    /* Initialize*/
+    INIT_LIST_HEAD(q);
+    return q;
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *l) {}
+void q_free(struct list_head *l)
+{
+    if (!l)
+        return;
+    struct list_head *q = l->next;
+    while (q != l) {
+        element_t *temp = container_of(q, element_t, list);
+        q = q->next;
+        q_release_element(temp);
+    }
+    free(l);
+}
 
 /*
  * Attempt to insert element at head of queue.
@@ -32,6 +49,21 @@ void q_free(struct list_head *l) {}
  */
 bool q_insert_head(struct list_head *head, char *s)
 {
+    if (!head)
+        return false;
+    /* Allocate memory to queue */
+    element_t *e = malloc(sizeof(element_t));
+    if (!e)
+        return false;
+
+    /* Allocate memory to string */
+    e->value = strdup(s);
+    if (!e->value) {
+        free(e);
+        return false;
+    }
+    /* Insert node */
+    list_add(&(e->list), head);
     return true;
 }
 
@@ -44,6 +76,21 @@ bool q_insert_head(struct list_head *head, char *s)
  */
 bool q_insert_tail(struct list_head *head, char *s)
 {
+    if (!head)
+        return false;
+    /* Allocate memory to queue */
+    element_t *e = malloc(sizeof(element_t));
+    if (!e)
+        return false;
+
+    /* Allocate memory to string */
+    e->value = strdup(s);
+    if (!e->value) {
+        free(e);
+        return false;
+    }
+    /* Insert node */
+    list_add_tail(&(e->list), head);
     return true;
 }
 
@@ -91,7 +138,15 @@ void q_release_element(element_t *e)
  */
 int q_size(struct list_head *head)
 {
-    return -1;
+    /*Return 0 if q is NULL.*/
+    if (!head)
+        return 0;
+    /*Iterate list to count length*/
+    int len = 0;
+    struct list_head *q;
+    list_for_each (q, head)
+        len++;
+    return len;
 }
 
 /*
